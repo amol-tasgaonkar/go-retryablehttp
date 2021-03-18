@@ -669,19 +669,26 @@ func (c *Client) Do(req *Request) (*http.Response, error) {
 	defer c.HTTPClient.CloseIdleConnections()
 
 	err := doErr
-	if checkErr != nil {
-		err = checkErr
-	}
 
+	// Post Processing after Retry is failed.
 	if c.ErrorHandler != nil {
 		return c.ErrorHandler(resp, err, attempt)
+	}
+	return resp, err
+
+	// AMOL_TBD: Disabled following all the code... 
+	/*
+
+	if checkErr != nil {
+		err = checkErr
 	}
 
 	// By default, we close the response body and return an error without
 	// returning the response
 	if resp != nil {
-		c.drainBody(resp.Body)
-	}
+		//c.drainBody(resp.Body)
+
+
 
 	// this means CheckRetry thought the request was a failure, but didn't
 	// communicate why
@@ -692,6 +699,7 @@ func (c *Client) Do(req *Request) (*http.Response, error) {
 
 	return nil, fmt.Errorf("%s %s giving up after %d attempt(s): %w",
 		req.Method, req.URL, attempt, err)
+	*/
 }
 
 // Try to read the response body so we can reuse this connection.
